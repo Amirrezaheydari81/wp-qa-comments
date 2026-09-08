@@ -99,7 +99,7 @@ class WPQA_Importer {
 
 			$created_at = current_time( 'mysql' );
 			if ( ! empty( $options['generate_random_dates'] ) ) {
-				$created_at = $this->random_datetime( (int) $options['date_range_days'] );
+				$created_at = $this->random_datetime( (int) $options['date_range_days'], absint( $item['post_id'] ) );
 			} elseif ( ! empty( $item['created_at'] ) ) {
 				$normalized = $this->normalize_datetime( (string) $item['created_at'] );
 				if ( $normalized ) {
@@ -113,9 +113,18 @@ class WPQA_Importer {
 			if ( '' !== $answer ) {
 				$replied_at = $created_at;
 				if ( ! empty( $options['generate_random_dates'] ) ) {
-					$created_ts = strtotime( $created_at );
+					$created_gmt = get_gmt_from_date( $created_at );
+					$created_ts  = strtotime( $created_gmt . ' UTC' );
 					if ( false !== $created_ts ) {
-						$replied_at = gmdate( 'Y-m-d H:i:s', $created_ts + wp_rand( HOUR_IN_SECONDS, 5 * DAY_IN_SECONDS ) );
+						$reply_ts = $created_ts + wp_rand( HOUR_IN_SECONDS, 5 * DAY_IN_SECONDS );
+						$now_ts   = time();
+						if ( $reply_ts > $now_ts ) {
+							$reply_ts = $now_ts;
+						}
+						if ( $reply_ts < $created_ts ) {
+							$reply_ts = $created_ts;
+						}
+						$replied_at = get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $reply_ts ), 'Y-m-d H:i:s' );
 					}
 				} elseif ( ! empty( $item['replied_at'] ) ) {
 					$normalized = $this->normalize_datetime( (string) $item['replied_at'] );
@@ -251,15 +260,31 @@ class WPQA_Importer {
 
 	/**
 	 * Generate a random datetime within the past N days (site local time).
+	 * Never earlier than the related post's publish date.
 	 *
-	 * @param int $days Range in days.
+	 * @param int $days    Range in days.
+	 * @param int $post_id Related post ID.
 	 * @return string MySQL datetime.
 	 */
-	private function random_datetime( $days = 90 ) {
+	private function random_datetime( $days = 90, $post_id = 0 ) {
 		$days = max( 1, absint( $days ) );
 		$now  = time();
 		$past = $now - ( $days * DAY_IN_SECONDS );
-		$ts   = wp_rand( $past, $now );
+		$min  = $past;
+
+		$post_id = absint( $post_id );
+		if ( $post_id ) {
+			$publish_ts = get_post_time( 'U', true, $post_id );
+			if ( $publish_ts ) {
+				$min = max( $min, (int) $publish_ts );
+			}
+		}
+
+		if ( $min > $now ) {
+			$min = $now;
+		}
+
+		$ts = ( $min === $now ) ? $now : wp_rand( $min, $now );
 
 		return get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $ts ), 'Y-m-d H:i:s' );
 	}

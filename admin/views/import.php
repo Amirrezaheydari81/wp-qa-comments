@@ -105,7 +105,7 @@ $sample = wp_json_encode(
 						<?php esc_html_e( 'تولید تاریخ‌های تصادفی', 'wp-qa-comments' ); ?>
 					</label>
 					<p class="description">
-						<?php esc_html_e( 'فقط برای داده تست/دمو — تاریخ ایجاد (و پاسخ) متنوع ساخته می‌شود.', 'wp-qa-comments' ); ?>
+						<?php esc_html_e( 'فقط برای داده تست/دمو — تاریخ ایجاد (و پاسخ) متنوع ساخته می‌شود و از تاریخ انتشار نوشته عقب‌تر نمی‌رود.', 'wp-qa-comments' ); ?>
 					</p>
 					<label for="wpqa-date-range">
 						<?php esc_html_e( 'بازه زمانی (روز):', 'wp-qa-comments' ); ?>
