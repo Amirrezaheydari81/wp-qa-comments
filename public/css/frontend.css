@@ -1,0 +1,258 @@
+/**
+ * WP Q&A Comments — Frontend styles (scoped with .wpqa- prefix)
+ */
+
+.wpqa-wrap {
+	--wpqa-bg: #fff;
+	--wpqa-border: #e5e7eb;
+	--wpqa-text: #1f2937;
+	--wpqa-muted: #6b7280;
+	--wpqa-accent: #0f766e;
+	--wpqa-accent-soft: #f0fdfa;
+	--wpqa-answer-bg: #f8fafc;
+	--wpqa-answer-border: #cbd5e1;
+	--wpqa-radius: 12px;
+	--wpqa-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+
+	box-sizing: border-box;
+	margin: 2.5rem 0 1rem;
+	padding: 0;
+	color: var(--wpqa-text);
+	font-size: 1rem;
+	line-height: 1.7;
+	direction: rtl;
+	text-align: right;
+}
+
+.wpqa-wrap *,
+.wpqa-wrap *::before,
+.wpqa-wrap *::after {
+	box-sizing: border-box;
+}
+
+.wpqa-header {
+	margin-bottom: 1.25rem;
+	padding-bottom: 0.75rem;
+	border-bottom: 1px solid var(--wpqa-border);
+}
+
+.wpqa-title {
+	margin: 0 0 0.25rem;
+	font-size: 1.35rem;
+	font-weight: 700;
+	color: var(--wpqa-text);
+}
+
+.wpqa-count {
+	margin: 0;
+	font-size: 0.9rem;
+	color: var(--wpqa-muted);
+}
+
+.wpqa-list {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.wpqa-empty {
+	margin: 0;
+	padding: 1.25rem;
+	color: var(--wpqa-muted);
+	background: var(--wpqa-answer-bg);
+	border: 1px dashed var(--wpqa-border);
+	border-radius: var(--wpqa-radius);
+}
+
+.wpqa-item {
+	background: var(--wpqa-bg);
+	border: 1px solid var(--wpqa-border);
+	border-radius: var(--wpqa-radius);
+	padding: 1.1rem 1.25rem;
+	box-shadow: var(--wpqa-shadow);
+}
+
+.wpqa-item-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.5rem;
+	margin-bottom: 0.65rem;
+}
+
+.wpqa-item-name {
+	font-weight: 700;
+	font-size: 1.05rem;
+	color: var(--wpqa-text);
+}
+
+.wpqa-item-date {
+	font-size: 0.8rem;
+	color: var(--wpqa-muted);
+}
+
+.wpqa-item-question {
+	margin: 0;
+	color: var(--wpqa-text);
+}
+
+.wpqa-item-question p {
+	margin: 0 0 0.5rem;
+}
+
+.wpqa-item-question p:last-child {
+	margin-bottom: 0;
+}
+
+.wpqa-item-answer {
+	margin-top: 1rem;
+	padding: 0.9rem 1rem;
+	background: var(--wpqa-answer-bg);
+	border: 1px solid var(--wpqa-answer-border);
+	border-right: 3px solid var(--wpqa-accent);
+	border-radius: 10px;
+}
+
+.wpqa-answer-label {
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.01em;
+	color: var(--wpqa-accent);
+	margin-bottom: 0.4rem;
+}
+
+.wpqa-answer-body p {
+	margin: 0 0 0.5rem;
+}
+
+.wpqa-answer-body p:last-child {
+	margin-bottom: 0;
+}
+
+.wpqa-load-more-wrap {
+	margin: 1.25rem 0;
+	text-align: center;
+}
+
+.wpqa-load-more,
+.wpqa-submit {
+	appearance: none;
+	border: none;
+	cursor: pointer;
+	font: inherit;
+	font-weight: 600;
+	border-radius: 10px;
+	padding: 0.7rem 1.25rem;
+	transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.wpqa-load-more {
+	background: #f3f4f6;
+	color: var(--wpqa-text);
+	border: 1px solid var(--wpqa-border);
+}
+
+.wpqa-load-more:hover,
+.wpqa-load-more:focus {
+	background: #e5e7eb;
+}
+
+.wpqa-load-more:disabled,
+.wpqa-submit:disabled {
+	opacity: 0.65;
+	cursor: not-allowed;
+}
+
+.wpqa-form-wrap {
+	margin-top: 1.75rem;
+	padding: 1.25rem;
+	border: 1px solid var(--wpqa-border);
+	border-radius: var(--wpqa-radius);
+	background: var(--wpqa-bg);
+}
+
+.wpqa-form-title {
+	margin: 0 0 1rem;
+	font-size: 1.1rem;
+	font-weight: 700;
+}
+
+.wpqa-field {
+	margin-bottom: 1rem;
+}
+
+.wpqa-field label {
+	display: block;
+	margin-bottom: 0.35rem;
+	font-weight: 600;
+	font-size: 0.95rem;
+}
+
+.wpqa-field input[type="text"],
+.wpqa-field textarea {
+	width: 100%;
+	max-width: 100%;
+	padding: 0.7rem 0.85rem;
+	border: 1px solid var(--wpqa-border);
+	border-radius: 10px;
+	background: #fff;
+	color: var(--wpqa-text);
+	font: inherit;
+	line-height: 1.5;
+}
+
+.wpqa-field input[type="text"]:focus,
+.wpqa-field textarea:focus {
+	outline: 2px solid rgba(15, 118, 110, 0.25);
+	border-color: var(--wpqa-accent);
+}
+
+.wpqa-form-actions {
+	margin-top: 0.5rem;
+}
+
+.wpqa-submit {
+	background: var(--wpqa-accent);
+	color: #fff;
+}
+
+.wpqa-submit:hover,
+.wpqa-submit:focus {
+	background: #0d9488;
+}
+
+.wpqa-message {
+	margin-top: 0.9rem;
+	padding: 0.75rem 0.9rem;
+	border-radius: 10px;
+	font-size: 0.95rem;
+}
+
+.wpqa-message--success {
+	background: var(--wpqa-accent-soft);
+	color: #115e59;
+	border: 1px solid #99f6e4;
+}
+
+.wpqa-message--error {
+	background: #fef2f2;
+	color: #991b1b;
+	border: 1px solid #fecaca;
+}
+
+@media (max-width: 600px) {
+	.wpqa-wrap {
+		margin: 1.75rem 0;
+	}
+
+	.wpqa-item,
+	.wpqa-form-wrap {
+		padding: 1rem;
+	}
+
+	.wpqa-item-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}

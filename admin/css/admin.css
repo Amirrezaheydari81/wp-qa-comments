@@ -1,0 +1,106 @@
+/**
+ * WP Q&A Comments — Admin styles
+ */
+
+.wpqa-admin-wrap .wpqa-status {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.6;
+}
+
+.wpqa-status--pending {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+.wpqa-status--approved {
+	background: #d1fae5;
+	color: #065f46;
+}
+
+.wpqa-status--rejected {
+	background: #fee2e2;
+	color: #991b1b;
+}
+
+.wpqa-row-actions a.wpqa-delete {
+	color: #b32d2e;
+}
+
+.wpqa-admin-reply-field {
+	border-right: 3px solid #0f766e !important;
+	background: #f8fafc;
+}
+
+.wpqa-import-report ul {
+	margin: 0.5em 0 0.5em 1.2em;
+	list-style: disc;
+}
+
+.wpqa-import-errors {
+	max-height: 220px;
+	overflow: auto;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	padding: 10px 12px;
+	border-radius: 4px;
+}
+
+.wpqa-sample-json {
+	margin-top: 2rem;
+	max-width: 860px;
+}
+
+.wpqa-code-block {
+	background: #1e1e1e;
+	color: #e5e7eb;
+	padding: 14px 16px;
+	border-radius: 6px;
+	overflow: auto;
+	direction: ltr;
+	text-align: left;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.wpqa-demo-notice {
+	border-right-color: #0f766e;
+}
+
+.wpqa-edit-form .form-table th {
+	width: 180px;
+}
+
+.wpqa-post-import-note {
+	margin-top: 0;
+}
+
+.wpqa-post-import-count {
+	font-weight: 600;
+}
+
+.wpqa-post-import-options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 18px;
+	align-items: center;
+}
+
+.wpqa-post-import .wpqa-post-json {
+	width: 100%;
+	font-family: Consolas, Monaco, monospace;
+	direction: ltr;
+	text-align: left;
+}
+
+.wpqa-post-import-report {
+	margin-top: 12px;
+}
+
+.wpqa-post-import .wpqa-sample-json {
+	margin-top: 1rem;
+}
+
