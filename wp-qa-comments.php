@@ -1,12 +1,12 @@
 <?php
 /**
  * Plugin Name:       پرسش و پاسخ (WP Q&A Comments)
- * Plugin URI:        https://example.com/wp-qa-comments
+ * Plugin URI:        https://clarotm.ir
  * Description:       سیستم سبک پرسش و پاسخ برای نوشته‌ها، برگه‌ها و انواع محتوای سفارشی. شامل درون‌ریزی JSON برای محتوای دمو و تست.
  * Version:           1.0.0
  * Requires at least: 5.8
  * Requires PHP:      7.4
- * Author:            WP Q&A Comments
+ * Author:            Amirreza Heydari
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       wp-qa-comments
