@@ -18,7 +18,8 @@
 	margin: 2.5rem 0 1rem;
 	padding: 0;
 	color: var(--wpqa-text);
-	font-size: 1rem;
+	font-family: inherit;
+	font-size: inherit;
 	line-height: 1.7;
 	direction: rtl;
 	text-align: right;
@@ -28,6 +29,13 @@
 .wpqa-wrap *::before,
 .wpqa-wrap *::after {
 	box-sizing: border-box;
+}
+
+.wpqa-wrap button,
+.wpqa-wrap input,
+.wpqa-wrap textarea,
+.wpqa-wrap select {
+	font-family: inherit;
 }
 
 .wpqa-header {
