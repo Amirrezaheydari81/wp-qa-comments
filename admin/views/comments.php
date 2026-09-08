@@ -161,7 +161,7 @@ WPQA_Admin::print_notice();
 								<?php endif; ?>
 							</td>
 							<td>
-								<?php echo esc_html( mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $item->created_at ) ); ?>
+								<?php echo esc_html( WPQA_Jalali::format( $item->created_at, true ) ); ?>
 							</td>
 							<td>
 								<span class="wpqa-status wpqa-status--<?php echo esc_attr( $item->status ); ?>">

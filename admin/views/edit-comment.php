@@ -63,7 +63,7 @@ $post_title = get_the_title( $comment->post_id );
 							printf(
 								/* translators: %s: datetime */
 								esc_html__( 'آخرین پاسخ در: %s', 'wp-qa-comments' ),
-								esc_html( mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $comment->replied_at ) )
+								esc_html( WPQA_Jalali::format( $comment->replied_at, true ) )
 							);
 							?>
 						</p>
@@ -83,7 +83,10 @@ $post_title = get_the_title( $comment->post_id );
 			<tr>
 				<th scope="row"><?php esc_html_e( 'تاریخ ایجاد', 'wp-qa-comments' ); ?></th>
 				<td>
-					<code><?php echo esc_html( $comment->created_at ); ?></code>
+					<?php echo esc_html( WPQA_Jalali::format( $comment->created_at, true ) ); ?>
+					<?php if ( ! empty( $comment->created_at ) ) : ?>
+						<br /><code><?php echo esc_html( $comment->created_at ); ?></code>
+					<?php endif; ?>
 				</td>
 			</tr>
 		</table>

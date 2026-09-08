@@ -25,6 +25,7 @@ define( 'WPQA_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 require_once WPQA_PLUGIN_DIR . 'includes/class-database.php';
 require_once WPQA_PLUGIN_DIR . 'includes/class-settings.php';
+require_once WPQA_PLUGIN_DIR . 'includes/class-jalali.php';
 require_once WPQA_PLUGIN_DIR . 'includes/class-comments.php';
 require_once WPQA_PLUGIN_DIR . 'includes/class-importer.php';
 require_once WPQA_PLUGIN_DIR . 'includes/class-ajax.php';

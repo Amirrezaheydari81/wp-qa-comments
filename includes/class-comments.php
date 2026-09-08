@@ -258,7 +258,7 @@ class WPQA_Comments {
 				<span class="wpqa-item-name"><?php echo esc_html( $item->name ); ?></span>
 				<?php if ( ! empty( $item->created_at ) && '0000-00-00 00:00:00' !== $item->created_at ) : ?>
 					<time class="wpqa-item-date" datetime="<?php echo esc_attr( $item->created_at ); ?>">
-						<?php echo esc_html( mysql2date( get_option( 'date_format' ), $item->created_at ) ); ?>
+						<?php echo esc_html( WPQA_Jalali::format( $item->created_at ) ); ?>
 					</time>
 				<?php endif; ?>
 			</header>
