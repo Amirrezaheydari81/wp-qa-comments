@@ -45,11 +45,15 @@ class WPQA_Settings {
 	 */
 	public static function defaults() {
 		return array(
-			'enabled_post_types'   => array( 'post', 'page' ),
-			'per_page'             => 10,
-			'require_approval'     => 1,
-			'show_form'            => 1,
-			'auto_append'          => 1,
+			'enabled_post_types'       => array( 'post', 'page' ),
+			'per_page'                 => 10,
+			'require_approval'         => 1,
+			'show_form'                => 1,
+			'auto_append'              => 1,
+			'captcha_enabled'          => 1,
+			'captcha_type'             => 'image',
+			'turnstile_site_key'       => '',
+			'turnstile_secret_key'     => '',
 			'delete_data_on_uninstall' => 0,
 		);
 	}
@@ -119,6 +123,14 @@ class WPQA_Settings {
 		$clean['require_approval'] = empty( $data['require_approval'] ) ? 0 : 1;
 		$clean['show_form']        = empty( $data['show_form'] ) ? 0 : 1;
 		$clean['auto_append']      = empty( $data['auto_append'] ) ? 0 : 1;
+		$clean['captcha_enabled']  = empty( $data['captcha_enabled'] ) ? 0 : 1;
+
+		$type = isset( $data['captcha_type'] ) ? sanitize_key( $data['captcha_type'] ) : 'image';
+		$clean['captcha_type'] = in_array( $type, array( 'image', 'math', 'turnstile' ), true ) ? $type : 'image';
+
+		$clean['turnstile_site_key']   = isset( $data['turnstile_site_key'] ) ? sanitize_text_field( $data['turnstile_site_key'] ) : '';
+		$clean['turnstile_secret_key'] = isset( $data['turnstile_secret_key'] ) ? sanitize_text_field( $data['turnstile_secret_key'] ) : '';
+
 		$clean['delete_data_on_uninstall'] = empty( $data['delete_data_on_uninstall'] ) ? 0 : 1;
 
 		update_option( self::OPTION_KEY, $clean );

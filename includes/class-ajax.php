@@ -39,6 +39,10 @@ class WPQA_Ajax {
 		add_action( 'wp_ajax_nopriv_wpqa_submit_question', array( $this, 'submit_question' ) );
 		add_action( 'wp_ajax_wpqa_load_more', array( $this, 'load_more' ) );
 		add_action( 'wp_ajax_nopriv_wpqa_load_more', array( $this, 'load_more' ) );
+		add_action( 'wp_ajax_wpqa_refresh_captcha', array( $this, 'refresh_captcha' ) );
+		add_action( 'wp_ajax_nopriv_wpqa_refresh_captcha', array( $this, 'refresh_captcha' ) );
+		add_action( 'wp_ajax_wpqa_captcha_image', array( $this, 'captcha_image' ) );
+		add_action( 'wp_ajax_nopriv_wpqa_captcha_image', array( $this, 'captcha_image' ) );
 	}
 
 	/**
@@ -70,6 +74,22 @@ class WPQA_Ajax {
 			wp_send_json_error(
 				array( 'message' => __( 'ارسال سؤال در حال حاضر غیرفعال است.', 'wp-qa-comments' ) ),
 				403
+			);
+		}
+
+		$captcha = WPQA_Captcha::verify( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( is_wp_error( $captcha ) ) {
+			$challenge = null;
+			$type      = WPQA_Captcha::get_type();
+			if ( WPQA_Captcha::is_enabled() && in_array( $type, array( 'image', 'math' ), true ) ) {
+				$challenge = WPQA_Captcha::create_challenge();
+			}
+			wp_send_json_error(
+				array(
+					'message' => $captcha->get_error_message(),
+					'captcha' => $challenge,
+				),
+				400
 			);
 		}
 
@@ -135,7 +155,39 @@ class WPQA_Ajax {
 			}
 		}
 
+		if ( WPQA_Captcha::is_enabled() && in_array( WPQA_Captcha::get_type(), array( 'image', 'math' ), true ) ) {
+			$response['captcha'] = WPQA_Captcha::create_challenge();
+		}
+
 		wp_send_json_success( $response );
+	}
+
+	/**
+	 * Refresh captcha challenge.
+	 */
+	public function refresh_captcha() {
+		check_ajax_referer( 'wpqa_frontend', 'nonce' );
+
+		if ( ! WPQA_Captcha::is_enabled() || ! in_array( WPQA_Captcha::get_type(), array( 'image', 'math' ), true ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'کپچا در دسترس نیست.', 'wp-qa-comments' ) ),
+				400
+			);
+		}
+
+		wp_send_json_success(
+			array(
+				'captcha' => WPQA_Captcha::create_challenge(),
+			)
+		);
+	}
+
+	/**
+	 * Stream captcha PNG image.
+	 */
+	public function captcha_image() {
+		$token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		WPQA_Captcha::output_image( $token );
 	}
 
 	/**
@@ -173,7 +225,7 @@ class WPQA_Ajax {
 			$html .= WPQA_Comments::instance()->render_item( $item );
 		}
 
-		$loaded = $page * $per_page;
+		$loaded   = $page * $per_page;
 		$has_more = $loaded < $result['total'];
 
 		wp_send_json_success(

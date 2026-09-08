@@ -65,6 +65,14 @@ class WPQA_Comments {
 			WPQA_VERSION,
 			true
 		);
+
+		wp_register_script(
+			'wpqa-turnstile',
+			'https://challenges.cloudflare.com/turnstile/v0/api.js',
+			array(),
+			WPQA_VERSION,
+			true
+		);
 	}
 
 	/**
@@ -78,13 +86,20 @@ class WPQA_Comments {
 		wp_enqueue_style( 'wpqa-frontend' );
 		wp_enqueue_script( 'wpqa-frontend' );
 
+		$captcha_type = WPQA_Captcha::is_enabled() ? WPQA_Captcha::get_type() : 'off';
+
+		if ( 'turnstile' === $captcha_type ) {
+			wp_enqueue_script( 'wpqa-turnstile' );
+		}
+
 		wp_localize_script(
 			'wpqa-frontend',
 			'wpqaData',
 			array(
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'wpqa_frontend' ),
-				'i18n'    => array(
+				'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
+				'nonce'       => wp_create_nonce( 'wpqa_frontend' ),
+				'captchaType' => $captcha_type,
+				'i18n'        => array(
 					'sending'          => __( 'در حال ارسال…', 'wp-qa-comments' ),
 					'submit'           => __( 'ارسال سؤال', 'wp-qa-comments' ),
 					'error'            => __( 'خطایی رخ داد. لطفاً دوباره تلاش کنید.', 'wp-qa-comments' ),
@@ -92,6 +107,7 @@ class WPQA_Comments {
 					'loading'          => __( 'در حال بارگذاری…', 'wp-qa-comments' ),
 					'nameRequired'     => __( 'لطفاً نام خود را وارد کنید.', 'wp-qa-comments' ),
 					'questionRequired' => __( 'لطفاً سؤال یا نظر خود را بنویسید.', 'wp-qa-comments' ),
+					'captchaRequired'  => __( 'لطفاً کد تصویر کپچا را وارد کنید.', 'wp-qa-comments' ),
 				),
 			)
 		);
@@ -164,8 +180,6 @@ class WPQA_Comments {
 			return '';
 		}
 
-		$this->enqueue_assets();
-
 		$per_page = (int) WPQA_Settings::get( 'per_page', 10 );
 		$result   = WPQA_Database::query(
 			array(
@@ -178,6 +192,13 @@ class WPQA_Comments {
 			)
 		);
 
+		// Do not render the Q&A box when there are no approved items.
+		if ( (int) $result['total'] < 1 ) {
+			return '';
+		}
+
+		$this->enqueue_assets();
+
 		$show_form = (bool) WPQA_Settings::get( 'show_form', 1 );
 		$has_more  = $result['total'] > $per_page;
 
@@ -186,27 +207,21 @@ class WPQA_Comments {
 		<div class="wpqa-wrap" data-post-id="<?php echo esc_attr( $post_id ); ?>" data-page="1" data-per-page="<?php echo esc_attr( $per_page ); ?>" data-total="<?php echo esc_attr( $result['total'] ); ?>" dir="rtl">
 			<div class="wpqa-header">
 				<h3 class="wpqa-title"><?php esc_html_e( 'سؤالات و پاسخ‌ها', 'wp-qa-comments' ); ?></h3>
-				<?php if ( $result['total'] > 0 ) : ?>
-					<p class="wpqa-count">
-						<?php
-						printf(
-							/* translators: %d: number of questions */
-							esc_html( _n( '%d سؤال', '%d سؤال', $result['total'], 'wp-qa-comments' ) ),
-							(int) $result['total']
-						);
-						?>
-					</p>
-				<?php endif; ?>
+				<p class="wpqa-count">
+					<?php
+					printf(
+						/* translators: %d: number of questions */
+						esc_html( _n( '%d سؤال', '%d سؤال', $result['total'], 'wp-qa-comments' ) ),
+						(int) $result['total']
+					);
+					?>
+				</p>
 			</div>
 
 			<div class="wpqa-list" id="wpqa-list-<?php echo esc_attr( $post_id ); ?>">
 				<?php
-				if ( empty( $result['items'] ) ) {
-					echo '<p class="wpqa-empty">' . esc_html__( 'هنوز سؤالی ثبت نشده است.', 'wp-qa-comments' ) . '</p>';
-				} else {
-					foreach ( $result['items'] as $item ) {
-						echo $this->render_item( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					}
+				foreach ( $result['items'] as $item ) {
+					echo $this->render_item( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
 				?>
 			</div>
@@ -232,6 +247,7 @@ class WPQA_Comments {
 							<label for="wpqa-question-<?php echo esc_attr( $post_id ); ?>"><?php esc_html_e( 'سؤال یا نظر شما', 'wp-qa-comments' ); ?></label>
 							<textarea id="wpqa-question-<?php echo esc_attr( $post_id ); ?>" name="question" rows="4" required maxlength="5000"></textarea>
 						</div>
+						<?php echo WPQA_Captcha::render_fields( $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<div class="wpqa-form-actions">
 							<button type="submit" class="wpqa-submit"><?php esc_html_e( 'ارسال سؤال', 'wp-qa-comments' ); ?></button>
 						</div>

@@ -3,7 +3,7 @@
  * Plugin Name:       پرسش و پاسخ (WP Q&A Comments)
  * Plugin URI:        https://clarotm.ir
  * Description:       سیستم سبک پرسش و پاسخ برای نوشته‌ها، برگه‌ها و انواع محتوای سفارشی. شامل درون‌ریزی JSON برای محتوای دمو و تست.
- * Version:           1.0.1
+ * Version:           1.0.5
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Amirreza Heydari
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WPQA_VERSION', '1.0.1' );
+define( 'WPQA_VERSION', '1.0.5' );
 define( 'WPQA_PLUGIN_FILE', __FILE__ );
 define( 'WPQA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPQA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -26,6 +26,7 @@ define( 'WPQA_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 require_once WPQA_PLUGIN_DIR . 'includes/class-database.php';
 require_once WPQA_PLUGIN_DIR . 'includes/class-settings.php';
 require_once WPQA_PLUGIN_DIR . 'includes/class-jalali.php';
+require_once WPQA_PLUGIN_DIR . 'includes/class-captcha.php';
 require_once WPQA_PLUGIN_DIR . 'includes/class-comments.php';
 require_once WPQA_PLUGIN_DIR . 'includes/class-importer.php';
 require_once WPQA_PLUGIN_DIR . 'includes/class-ajax.php';
