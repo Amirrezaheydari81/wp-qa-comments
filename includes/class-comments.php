@@ -176,26 +176,30 @@ class WPQA_Comments {
 	 */
 	public function render( $post_id ) {
 		$post_id = absint( $post_id );
-		if ( ! $post_id || ! get_post( $post_id ) ) {
+		if ( ! $post_id ) {
+			return '';
+		}
+
+		$total = WPQA_Database::approved_count( $post_id );
+
+		if ( $total < 1 ) {
 			return '';
 		}
 
 		$per_page = (int) WPQA_Settings::get( 'per_page', 10 );
 		$result   = WPQA_Database::query(
 			array(
-				'post_id'  => $post_id,
-				'status'   => 'approved',
-				'orderby'  => 'created_at',
-				'order'    => 'DESC',
-				'per_page' => $per_page,
-				'page'     => 1,
+				'post_id'    => $post_id,
+				'status'     => 'approved',
+				'orderby'    => 'created_at',
+				'order'      => 'DESC',
+				'per_page'   => $per_page,
+				'page'       => 1,
+				'with_total' => false,
+				'columns'    => array( 'id', 'name', 'question', 'answer', 'created_at' ),
 			)
 		);
-
-		// Do not render the Q&A box when there are no approved items.
-		if ( (int) $result['total'] < 1 ) {
-			return '';
-		}
+		$result['total'] = $total;
 
 		$this->enqueue_assets();
 
@@ -283,7 +287,7 @@ class WPQA_Comments {
 			</div>
 			<?php if ( ! empty( $item->answer ) ) : ?>
 				<div class="wpqa-item-answer">
-					<div class="wpqa-answer-label"><?php esc_html_e( 'پاسخ مدیر سایت', 'wp-qa-comments' ); ?></div>
+					<?php echo $this->answer_profile_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in answer_profile_html(). ?>
 					<div class="wpqa-answer-body">
 						<?php echo wp_kses_post( wpautop( $item->answer ) ); ?>
 					</div>
@@ -292,5 +296,41 @@ class WPQA_Comments {
 		</article>
 		<?php
 		return ob_get_clean();
+	}
+
+	/**
+	 * Profile row for the person who answers. Built once per request.
+	 *
+	 * @return string
+	 */
+	private function answer_profile_html() {
+		static $html = null;
+
+		if ( null !== $html ) {
+			return $html;
+		}
+
+		$profile = WPQA_Settings::reply_author_profile();
+		$name    = $profile['name'];
+
+		if ( '' === $name ) {
+			$name = __( 'پاسخ مدیر سایت', 'wp-qa-comments' );
+		}
+
+		$label = esc_html( $name );
+
+		if ( '' !== $profile['url'] ) {
+			$label = '<a href="' . esc_url( $profile['url'] ) . '">' . $label . '</a>';
+		}
+
+		$role = '';
+
+		if ( '' !== $profile['role'] ) {
+			$role = '<span class="wpqa-answer-role">' . esc_html( $profile['role'] ) . '</span>';
+		}
+
+		$html = '<div class="wpqa-answer-profile">' . $profile['image_html'] . '<span class="wpqa-answer-meta"><span class="wpqa-answer-label">' . $label . '</span>' . $role . '</span></div>';
+
+		return $html;
 	}
 }

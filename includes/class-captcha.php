@@ -408,12 +408,11 @@ class WPQA_Captcha {
 		}
 
 		if ( 'math' === self::get_type() ) {
-			$challenge = self::create_math_challenge();
 			?>
 			<div class="wpqa-field wpqa-captcha wpqa-captcha--math">
 				<label for="wpqa-captcha-<?php echo esc_attr( $post_id ); ?>"><?php esc_html_e( 'کپچا', 'wp-qa-comments' ); ?></label>
-				<p class="wpqa-captcha-question" data-role="question"><?php echo esc_html( $challenge['question'] ); ?></p>
-				<input type="hidden" name="wpqa_captcha_token" value="<?php echo esc_attr( $challenge['token'] ); ?>" data-role="token" />
+				<p class="wpqa-captcha-question" data-role="question"></p>
+				<input type="hidden" name="wpqa_captcha_token" value="" data-role="token" />
 				<input type="text" id="wpqa-captcha-<?php echo esc_attr( $post_id ); ?>" name="wpqa_captcha_answer" inputmode="numeric" autocomplete="off" required placeholder="<?php esc_attr_e( 'پاسخ را وارد کنید', 'wp-qa-comments' ); ?>" />
 				<button type="button" class="wpqa-captcha-refresh" aria-label="<?php esc_attr_e( 'تولید کپچای جدید', 'wp-qa-comments' ); ?>" title="<?php esc_attr_e( 'کپچای جدید', 'wp-qa-comments' ); ?>">
 					<svg class="wpqa-captcha-refresh-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -425,7 +424,6 @@ class WPQA_Captcha {
 			return ob_get_clean();
 		}
 
-		$challenge = self::create_image_challenge();
 		?>
 		<div class="wpqa-field wpqa-captcha wpqa-captcha--image">
 			<label for="wpqa-captcha-<?php echo esc_attr( $post_id ); ?>"><?php esc_html_e( 'کد امنیتی تصویر', 'wp-qa-comments' ); ?></label>
@@ -433,12 +431,11 @@ class WPQA_Captcha {
 				<img
 					class="wpqa-captcha-image"
 					data-role="image"
-					src="<?php echo esc_url( $challenge['image_url'] ); ?>"
 					alt="<?php esc_attr_e( 'کپچای تصویری', 'wp-qa-comments' ); ?>"
 					width="150"
 					height="48"
-					loading="lazy"
 					decoding="async"
+					hidden
 				/>
 				<button type="button" class="wpqa-captcha-refresh" aria-label="<?php esc_attr_e( 'تصویر جدید', 'wp-qa-comments' ); ?>" title="<?php esc_attr_e( 'تصویر جدید', 'wp-qa-comments' ); ?>">
 					<svg class="wpqa-captcha-refresh-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -446,7 +443,7 @@ class WPQA_Captcha {
 					</svg>
 				</button>
 			</div>
-			<input type="hidden" name="wpqa_captcha_token" value="<?php echo esc_attr( $challenge['token'] ); ?>" data-role="token" />
+			<input type="hidden" name="wpqa_captcha_token" value="" data-role="token" />
 			<input
 				type="text"
 				id="wpqa-captcha-<?php echo esc_attr( $post_id ); ?>"

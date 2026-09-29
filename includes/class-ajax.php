@@ -200,25 +200,29 @@ class WPQA_Ajax {
 		$page     = isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1;
 		$per_page = (int) WPQA_Settings::get( 'per_page', 10 );
 
-		if ( ! $post_id || ! get_post( $post_id ) ) {
+		if ( ! $post_id ) {
 			wp_send_json_error(
 				array( 'message' => __( 'نوشته نامعتبر است.', 'wp-qa-comments' ) ),
 				400
 			);
 		}
 
-		$page = max( 1, $page );
+		$page  = max( 1, $page );
+		$total = WPQA_Database::approved_count( $post_id );
 
 		$result = WPQA_Database::query(
 			array(
-				'post_id'  => $post_id,
-				'status'   => 'approved',
-				'orderby'  => 'created_at',
-				'order'    => 'DESC',
-				'per_page' => $per_page,
-				'page'     => $page,
+				'post_id'    => $post_id,
+				'status'     => 'approved',
+				'orderby'    => 'created_at',
+				'order'      => 'DESC',
+				'per_page'   => $per_page,
+				'page'       => $page,
+				'with_total' => false,
+				'columns'    => array( 'id', 'name', 'question', 'answer', 'created_at' ),
 			)
 		);
+		$result['total'] = $total;
 
 		$html = '';
 		foreach ( $result['items'] as $item ) {

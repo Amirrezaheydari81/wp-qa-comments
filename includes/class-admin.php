@@ -114,6 +114,17 @@ class WPQA_Admin {
 			WPQA_VERSION
 		);
 
+		if ( 'wpqa-comments_page_wpqa-settings' === $hook ) {
+			wp_enqueue_media();
+			wp_enqueue_script(
+				'wpqa-answer-profile',
+				WPQA_PLUGIN_URL . 'admin/js/answer-profile.js',
+				array( 'media-editor' ),
+				WPQA_VERSION,
+				true
+			);
+		}
+
 		if ( $is_post_screen ) {
 			wp_enqueue_script(
 				'wpqa-post-import',

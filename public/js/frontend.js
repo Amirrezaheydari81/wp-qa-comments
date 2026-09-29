@@ -57,6 +57,7 @@
 			var image = qs(form, '[data-role="image"]');
 			if (image && captcha.image_url) {
 				image.src = captcha.image_url;
+				image.hidden = false;
 			}
 		}
 
@@ -108,6 +109,50 @@
 		return payload;
 	}
 
+	function loadCaptcha(form) {
+		if (!form || form.getAttribute('data-captcha-loaded') === '1') {
+			return;
+		}
+		if (wpqaData.captchaType !== 'image' && wpqaData.captchaType !== 'math') {
+			return;
+		}
+
+		form.setAttribute('data-captcha-loaded', '1');
+		postForm('wpqa_refresh_captcha', {}).then(function (json) {
+			if (json && json.success && json.data && json.data.captcha) {
+				applyCaptcha(form, json.data.captcha);
+			} else {
+				form.removeAttribute('data-captcha-loaded');
+			}
+		}).catch(function () {
+			form.removeAttribute('data-captcha-loaded');
+		});
+	}
+
+	function watchCaptcha(form) {
+		var field = qs(form, '.wpqa-captcha');
+		if (!field || (wpqaData.captchaType !== 'image' && wpqaData.captchaType !== 'math')) {
+			return;
+		}
+
+		if (typeof IntersectionObserver !== 'function') {
+			loadCaptcha(form);
+			return;
+		}
+
+		var observer = new IntersectionObserver(function (entries) {
+			entries.forEach(function (entry) {
+				if (!entry.isIntersecting) {
+					return;
+				}
+				observer.disconnect();
+				loadCaptcha(form);
+			});
+		}, { rootMargin: '240px' });
+
+		observer.observe(field);
+	}
+
 	function bindCaptchaRefresh(form) {
 		var btn = qs(form, '.wpqa-captcha-refresh');
 		if (!btn || (wpqaData.captchaType !== 'math' && wpqaData.captchaType !== 'image')) {
@@ -135,6 +180,7 @@
 			return;
 		}
 
+		watchCaptcha(form);
 		bindCaptchaRefresh(form);
 
 		form.addEventListener('submit', function (e) {

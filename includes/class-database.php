@@ -106,6 +106,8 @@ class WPQA_Database {
 			return false;
 		}
 
+		self::refresh_approved_count( absint( $data['post_id'] ) );
+
 		return (int) $wpdb->insert_id;
 	}
 
@@ -120,6 +122,7 @@ class WPQA_Database {
 		global $wpdb;
 
 		$id     = absint( $id );
+		$before = self::get( $id );
 		$fields = array();
 		$format = array();
 
@@ -164,6 +167,13 @@ class WPQA_Database {
 			array( '%d' )
 		);
 
+		if ( false !== $result && $before ) {
+			self::refresh_approved_count( (int) $before->post_id );
+			if ( isset( $fields['post_id'] ) && (int) $fields['post_id'] !== (int) $before->post_id ) {
+				self::refresh_approved_count( (int) $fields['post_id'] );
+			}
+		}
+
 		return false !== $result;
 	}
 
@@ -176,13 +186,67 @@ class WPQA_Database {
 	public static function delete( $id ) {
 		global $wpdb;
 
+		$id    = absint( $id );
+		$row   = self::get( $id );
 		$result = $wpdb->delete(
 			self::table_name(),
-			array( 'id' => absint( $id ) ),
+			array( 'id' => $id ),
 			array( '%d' )
 		);
 
+		if ( false !== $result && $row ) {
+			self::refresh_approved_count( (int) $row->post_id );
+		}
+
 		return false !== $result;
+	}
+
+	/**
+	 * Approved count for a post, stored in post meta after the first lookup.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return int
+	 */
+	public static function approved_count( $post_id ) {
+		$post_id = absint( $post_id );
+		if ( ! $post_id ) {
+			return 0;
+		}
+
+		$stored = get_post_meta( $post_id, '_wpqa_approved_count', true );
+
+		if ( '' === $stored || false === $stored ) {
+			self::refresh_approved_count( $post_id );
+			$stored = get_post_meta( $post_id, '_wpqa_approved_count', true );
+		}
+
+		return (int) $stored;
+	}
+
+	/**
+	 * Recount approved rows and store the number on the post.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return void
+	 */
+	public static function refresh_approved_count( $post_id ) {
+		global $wpdb;
+
+		$post_id = absint( $post_id );
+		if ( ! $post_id ) {
+			return;
+		}
+
+		$table = self::table_name();
+		$count = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$table} WHERE post_id = %d AND status = %s",
+				$post_id,
+				'approved'
+			)
+		);
+
+		update_post_meta( $post_id, '_wpqa_approved_count', $count );
 	}
 
 	/**
@@ -211,13 +275,15 @@ class WPQA_Database {
 		global $wpdb;
 
 		$defaults = array(
-			'post_id'  => 0,
-			'status'   => '',
-			'search'   => '',
-			'orderby'  => 'created_at',
-			'order'    => 'DESC',
-			'per_page' => 20,
-			'page'     => 1,
+			'post_id'    => 0,
+			'status'     => '',
+			'search'     => '',
+			'orderby'    => 'created_at',
+			'order'      => 'DESC',
+			'per_page'   => 20,
+			'page'       => 1,
+			'with_total' => true,
+			'columns'    => array(),
 		);
 
 		$args  = wp_parse_args( $args, $defaults );
@@ -253,22 +319,53 @@ class WPQA_Database {
 		$offset   = ( $page - 1 ) * $per_page;
 
 		$where_sql = implode( ' AND ', $where );
+		$select    = self::select_columns( $args['columns'] );
 
-		$count_sql = "SELECT COUNT(*) FROM {$table} WHERE {$where_sql}";
-		$list_sql  = "SELECT * FROM {$table} WHERE {$where_sql} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
+		$list_sql = "SELECT {$select} FROM {$table} WHERE {$where_sql} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
 
 		if ( ! empty( $values ) ) {
-			$total = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $values ) );
 			$items = $wpdb->get_results( $wpdb->prepare( $list_sql, array_merge( $values, array( $per_page, $offset ) ) ) );
 		} else {
-			$total = (int) $wpdb->get_var( $count_sql );
 			$items = $wpdb->get_results( $wpdb->prepare( $list_sql, $per_page, $offset ) );
+		}
+
+		$total = 0;
+
+		if ( ! empty( $args['with_total'] ) ) {
+			$count_sql = "SELECT COUNT(*) FROM {$table} WHERE {$where_sql}";
+			if ( ! empty( $values ) ) {
+				$total = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $values ) );
+			} else {
+				$total = (int) $wpdb->get_var( $count_sql );
+			}
 		}
 
 		return array(
 			'items' => $items ? $items : array(),
 			'total' => $total,
 		);
+	}
+
+	/**
+	 * Whitelist of columns for frontend selects.
+	 *
+	 * @param mixed $columns Requested columns.
+	 * @return string
+	 */
+	private static function select_columns( $columns ) {
+		$allowed = array( 'id', 'post_id', 'name', 'question', 'answer', 'status', 'created_at', 'replied_at' );
+		$picked  = array();
+
+		if ( is_array( $columns ) ) {
+			foreach ( $columns as $column ) {
+				$column = sanitize_key( $column );
+				if ( in_array( $column, $allowed, true ) ) {
+					$picked[] = $column;
+				}
+			}
+		}
+
+		return $picked ? implode( ', ', $picked ) : '*';
 	}
 
 	/**

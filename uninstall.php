@@ -24,6 +24,7 @@ $wpdb->query( "DROP TABLE IF EXISTS {$table}" );
 
 delete_option( 'wpqa_settings' );
 delete_option( 'wpqa_db_version' );
+$wpdb->delete( $wpdb->postmeta, array( 'meta_key' => '_wpqa_approved_count' ) );
 
 // Clean leftover import report transients.
 $wpdb->query(
