@@ -114,7 +114,9 @@ class WPQA_Admin {
 			WPQA_VERSION
 		);
 
-		if ( 'wpqa-comments_page_wpqa-settings' === $hook ) {
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+
+		if ( 'wpqa-settings' === $page ) {
 			wp_enqueue_media();
 			wp_enqueue_script(
 				'wpqa-answer-profile',
